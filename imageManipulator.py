@@ -4,20 +4,22 @@ from PIL import Image
 RESIZE = (50, 50)
 # Threshold percentage of white pixels
 THRESHOLD_PERCENTAGE = 0.9
+# Threshold percentage of colors pixels
+COLOR_THRESHOLD_PERCENTAGE = 0.75
 
 # Pixels types
 PIXEL = {
   'BLACK': (0, 0, 0),
   'WHITE': (255, 255, 255),
-  'THRESHOLD': (255 * THRESHOLD_PERCENTAGE, 255 * THRESHOLD_PERCENTAGE, 255 * THRESHOLD_PERCENTAGE),
-  'START': (0, 255, 0),
-  'END': (255, 0, 0),
+  'THRESHOLD': (int(255 * THRESHOLD_PERCENTAGE), int(255 * THRESHOLD_PERCENTAGE), int(255 * THRESHOLD_PERCENTAGE)),
+  'START': (int(255 * COLOR_THRESHOLD_PERCENTAGE), int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE)), int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE))),
+  'END': (int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE)), int(255 * COLOR_THRESHOLD_PERCENTAGE), int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE))),
   'PATH': (0, 0, 255)
 }
 
 # Read image
 def read_image(path):
-  return Image.open(path)
+  return Image.open(path).convert('RGB')
 
 # Write image to file
 def write_image(img):
@@ -26,16 +28,26 @@ def write_image(img):
 # Reduce all pixels of image in 50x50 matrix
 def reduce_image(img):
   reduced = img.resize(RESIZE)
+  startpoints = []
+  endpoints = []
   # convert all pixels of Image to black if they are less than 50% white
   for i in range(reduced.size[0]):
     for j in range(reduced.size[1]):
       pixel = reduced.getpixel((i, j))
+      # Start is red, so [0] should be greater and [1] and [2] should be minor
+      if pixel[0] > PIXEL['START'][0] and pixel[1] < PIXEL['START'][1] and pixel[2] < PIXEL['START'][2]:
+        reduced.putpixel((i, j), PIXEL['START'])
+        startpoints.append((i, j))
+      # End is green, so [1] should be greater and [0] and [2] should be minor
+      elif pixel[0] < PIXEL['END'][0] and pixel[1] > PIXEL['END'][1] and pixel[2] < PIXEL['END'][2]:
+        reduced.putpixel((i, j), PIXEL['END'])
+        endpoints.append((i, j))
       # If pixel is less than 225
-      if pixel[0] < PIXEL['THRESHOLD'][0] and pixel[1] < PIXEL['THRESHOLD'][1] and pixel[2] < PIXEL['THRESHOLD'][2]:
+      elif pixel[0] < PIXEL['THRESHOLD'][0] and pixel[1] < PIXEL['THRESHOLD'][1] and pixel[2] < PIXEL['THRESHOLD'][2]:
         reduced.putpixel((i, j), PIXEL['BLACK'])
       else:
         reduced.putpixel((i, j), PIXEL['WHITE'])
-  return reduced
+  return reduced, startpoints, endpoints
 
 # Replace pixels on array into image
 def replace_image(img, array):
@@ -45,17 +57,3 @@ def replace_image(img, array):
       if (array[i][j] == 1) and (img.getpixel((i, j)) != PIXEL['BLACK']):
         img.putpixel((i, j), PIXEL['PATH'])
   return img
-
-# Get data of a point type of pixels into image
-def get_point(img, type):
-  points = []
-  for i in range(img.size[0]):
-    for j in range(img.size[1]):
-      if type == PIXEL['START']:
-        if img.getpixel((i, j)) == PIXEL['START']:
-          points.append((i, j))
-          return points
-      elif type == PIXEL['END']:
-        if img.getpixel((i, j)) == PIXEL['END']:
-          points.append((i, j))
-  return points
