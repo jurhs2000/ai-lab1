@@ -1,17 +1,25 @@
+from graphsearch import BFS
 import imageManipulator as im
 import matplotlib.pyplot as plt
 import numpy as np
+from problem import Problem
 
 img = im.read_image("input/input3.png")
 img, startpoints, endpoints = im.reduce_image(img)
+print(startpoints, endpoints)
 
 # Show image with matplotlib
 plt.imshow(img)
 plt.show()
 
-# Create 50x50 test matrix with some pixels set to 0 and others set to 1
-path = np.random.randint(2, size=(50, 50))
-img = im.replace_image(img, path)
+problem = Problem(img, startpoints, endpoints)
+algorithm = BFS(problem)
+result = algorithm.execute()
+print(result)
+
+algorithm.actions(startpoints[0])
+
+#img = im.replace_image(img, path)
 
 # Show result with path
 plt.imshow(img)
