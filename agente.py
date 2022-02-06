@@ -15,11 +15,8 @@ plt.show()
 problem = Problem(img, startpoints, endpoints)
 algorithm = BFS(problem)
 result = algorithm.execute()
-print(result)
 
-algorithm.actions(startpoints[0])
-
-#img = im.replace_image(img, path)
+img = im.replace_image(img, result)
 
 # Show result with path
 plt.imshow(img)

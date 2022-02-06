@@ -51,9 +51,8 @@ def reduce_image(img):
 
 # Replace pixels on array into image
 def replace_image(img, array):
-  for i in range(len(array)):
-    for j in range(len(array[0])):
-      # If array index is 1 and pixel in image is not black
-      if (array[i][j] == 1) and (img.getpixel((i, j)) != PIXEL['BLACK']):
-        img.putpixel((i, j), PIXEL['PATH'])
+  for node in array:
+    # If pixel in image is not black
+    if img.getpixel((node.state[0], node.state[1])) != PIXEL['BLACK']:
+      img.putpixel((node.state[0], node.state[1]), PIXEL['PATH'])
   return img
