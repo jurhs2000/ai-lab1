@@ -14,7 +14,9 @@ PIXEL = {
   'THRESHOLD': (int(255 * THRESHOLD_PERCENTAGE), int(255 * THRESHOLD_PERCENTAGE), int(255 * THRESHOLD_PERCENTAGE)),
   'START': (int(255 * COLOR_THRESHOLD_PERCENTAGE), int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE)), int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE))),
   'END': (int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE)), int(255 * COLOR_THRESHOLD_PERCENTAGE), int(255 - (255 * COLOR_THRESHOLD_PERCENTAGE))),
-  'PATH': (0, 0, 255)
+  'PATH': (0, 0, 255),
+  'EXPLORED': (255, 255, 0),
+  'FRONTIER': (255, 0, 255)
 }
 
 # Read image
@@ -50,9 +52,17 @@ def reduce_image(img):
   return reduced, startpoints, endpoints
 
 # Replace pixels on array into image
-def replace_image(img, array):
-  for node in array:
+def replace_image(img, path, explored, frontier):
+  for node in explored:
     # If pixel in image is not black
-    if img.getpixel((node.state[0], node.state[1])) != PIXEL['BLACK']:
+    if img.getpixel((node.state[0], node.state[1])) != PIXEL['BLACK'] and img.getpixel((node.state[0], node.state[1])) != PIXEL['END'] and img.getpixel((node.state[0], node.state[1])) != PIXEL['START']:
+      img.putpixel((node.state[0], node.state[1]), PIXEL['EXPLORED'])
+  for node in frontier:
+    # If pixel in image is not black
+    if img.getpixel((node.state[0], node.state[1])) != PIXEL['BLACK'] and img.getpixel((node.state[0], node.state[1])) != PIXEL['END'] and img.getpixel((node.state[0], node.state[1])) != PIXEL['START']:
+      img.putpixel((node.state[0], node.state[1]), PIXEL['FRONTIER'])
+  for node in path:
+    # If pixel in image is not black
+    if img.getpixel((node.state[0], node.state[1])) != PIXEL['BLACK'] and img.getpixel((node.state[0], node.state[1])) != PIXEL['END'] and img.getpixel((node.state[0], node.state[1])) != PIXEL['START']:
       img.putpixel((node.state[0], node.state[1]), PIXEL['PATH'])
   return img
