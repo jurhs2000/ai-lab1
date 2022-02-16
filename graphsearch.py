@@ -106,6 +106,50 @@ class BFS:
 class DFS:
   def __init__(self, problem):
     self.problem = problem
+    self.problem.actions = self.actions
+    self.problem.goal_test = self.goal_test
+    self.problem.result = self.solution
+    self.explored = []
+
+  def execute(self):
+    self.node = Node(self.problem.initial_state[0], 1, None)
+    self.recursiveDLS(self.node)
+    return self.solution(self.child)
+
+  def recursiveDLS(self, node):
+    if self.problem.goal_test(node.state):
+      return True
+    else:
+      self.explored.append(node)
+      self.result = False
+      for action in self.problem.actions(node.state):
+        self.child = Node(action, 1, node)
+        if (not self.is_in(self.child, self.explored) ):
+          self.result = self.recursiveDLS(self.child)
+          if(self.result):
+            break
+      return self.result
+
+  def is_in(self, node, list):
+    for n in list:
+      if n.state == node.state:
+        return True
+    return False
+
+  def actions(self, state):
+    return actions(state, self.problem.matrix)
+
+  def goal_test(self, state):
+    if state in self.problem.results:
+      return True
+    return False
+
+  def solution(self, node):
+      self.backward = node.parent
+      while self.backward.parent != None:
+        self.problem.path.append(copy(self.backward))
+        self.backward = self.backward.parent
+      return self.problem.path, self.explored, []
 
 # A*
 class a_star:

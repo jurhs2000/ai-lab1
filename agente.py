@@ -1,4 +1,4 @@
-from graphsearch import BFS, a_star
+from graphsearch import BFS, a_star, DFS
 import imageManipulator as im
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,7 +25,9 @@ while option != 4:
     path, explored, frontier = algorithm.execute()
     option = 4
   elif option == 2:
-    pass
+    algorithm = DFS(problem)
+    path, explored, frontier = algorithm.execute()
+    option = 4
   elif option == 3:
     algorithm = a_star(problem)
     path, explored, frontier = algorithm.execute()
