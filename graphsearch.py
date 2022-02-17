@@ -5,6 +5,15 @@ from typing import List, Tuple, TypeVar
 import heapq
 T = TypeVar('T')
 
+# next imports are used only to show a graph
+'''
+import imageManipulator as im
+import matplotlib.pyplot as plt
+import numpy as np
+from problem import Problem
+'''
+
+# The Node class define a node in the graph, will be a pixel in the image
 class Node:
   def __init__(self, state, path_cost, parent):
     self.state = state
@@ -40,6 +49,7 @@ class Node:
     else:
       return False
 
+# Priority queue used in A* https://www.redblobgames.com/pathfinding/a-star/implementation.py
 class PriorityQueue:
     def __init__(self):
         self.elements: List[Tuple[float, T]] = []
@@ -53,7 +63,8 @@ class PriorityQueue:
     def get(self) -> T:
         return heapq.heappop(self.elements)[1]
 
-    def getList(self) -> List[T]:
+    # Return an iterable list of the elements in the queue
+    def get_list(self) -> List[T]:
         return [item[1] for item in self.elements]
 
 # Breadth First Search
@@ -89,6 +100,7 @@ class BFS:
       return True
     return False
 
+  # Go through the references of parents from the goal node
   def solution(self, node):
     self.backward = node.parent
     while self.backward.parent != None:
@@ -96,6 +108,7 @@ class BFS:
       self.backward = self.backward.parent
     return self.problem.path, self.explored, self.frontier
 
+  # Determine if Node is on list based on state
   def is_in(self, node, list):
     for n in list:
       if n.state == node.state:
@@ -109,24 +122,68 @@ class DFS:
     self.problem.actions = self.actions
     self.problem.goal_test = self.goal_test
     self.problem.result = self.solution
+    self.frontier = []
     self.explored = []
+    # Commented declarations used to show a graph
+    '''
+    self.img = im.read_image("input/input4.bmp")
+    self.img, self.startpoints, self.endpoints = im.reduce_image(self.img)
+    '''
 
   def execute(self):
     self.node = Node(self.problem.initial_state[0], 1, None)
-    self.recursiveDLS(self.node)
-    return self.solution(self.child)
+    self.recursive_dls(self.node)
+    return self.problem.result(self.child)
 
-  def recursiveDLS(self, node):
+  # Used to validate and recursive on every node (child node)
+  def recursive_dls(self, node):
     if self.problem.goal_test(node.state):
       return True
     else:
+      # If the node was already on frontier, use the parent of this to reduce the path
+      if self.is_in(node, self.frontier):
+        for i in range(len(self.frontier)):
+          if self.frontier[i].state == node.state:
+            # only use the parent if the parent of actual node was already discarded and if the parent of both nodes are the same
+            if not ((not self.is_in(self.frontier[i].parent, self.problem.path)) and self.frontier[i].parent.state != node.parent.state):
+              node.parent = self.frontier[i].parent
+            break
+
       self.explored.append(node)
+      # find and remove element in frontier
+      if self.is_in(node, self.frontier):
+        for i in range(len(self.frontier)):
+          if self.frontier[i].state == node.state:
+            self.frontier.pop(i)
+            break
+
+      # Calculate the path (result) is necessary to go discarding nodes
+      if node.parent != None:
+        self.problem.result(node)
+
+      # Code commented show the plot of the path on every step
+      '''
+      if node.parent != None:
+        path, explored, frontier = self.problem.result(node)
+        self.img = im.replace_image(self.img, path, explored, frontier)
+        # Show result with path
+        plt.imshow(self.img)
+        plt.show()
+      '''
+
+      # Add childs to frontier if not in explored or frontier
+      for action in self.problem.actions(node.state):
+        if not self.is_in(Node(action, 1, node), self.frontier) and not self.is_in(Node(action, 1, node), self.explored):
+          self.frontier.append(Node(action, 1, node))
+
+      # Do the recursive for every child
       self.result = False
       for action in self.problem.actions(node.state):
         self.child = Node(action, 1, node)
         if (not self.is_in(self.child, self.explored) ):
-          self.result = self.recursiveDLS(self.child)
-          if(self.result):
+          self.result = self.recursive_dls(self.child)
+          # If the child was the goal, return True, breaking every recursive for loop (of childs)
+          if (self.result):
             break
       return self.result
 
@@ -145,11 +202,12 @@ class DFS:
     return False
 
   def solution(self, node):
-      self.backward = node.parent
-      while self.backward.parent != None:
-        self.problem.path.append(copy(self.backward))
-        self.backward = self.backward.parent
-      return self.problem.path, self.explored, []
+    self.problem.path = []
+    self.backward = node.parent
+    while self.backward.parent != None:
+      self.problem.path.append(copy(self.backward))
+      self.backward = self.backward.parent
+    return self.problem.path, self.explored, self.frontier
 
 # A*
 class a_star:
@@ -176,11 +234,16 @@ class a_star:
       if self.problem.goal_test(self.current):
         return self.problem.path_cost(self.current) # TODO: Do this or only return?
 
+      # Do for every (priority) Node on frontier while goal is not found
       for next in self.problem.actions(self.current.state):
         self.child = Node(next, 1, self.current)
+        # Step cost always be 1 for this matrix
         self.new_cost = self.cost_so_far[self.current] + self.problem.step_cost(self.current, self.child)
+        # If child not in "frontier"
+        # If the cost of the parent + step cost (1) is less than the cost of the child
         if self.child not in self.cost_so_far or self.new_cost < self.cost_so_far[self.child]:
           self.cost_so_far[self.child] = self.new_cost
+          # Calculate priority based on the cost and heuristics (less is better priority)
           self.priority = self.new_cost + self.heuristic1(self.child) + self.heuristic2(self.child)
           self.frontier.put(self.child, self.priority)
           self.came_from[self.child] = self.current
@@ -225,31 +288,23 @@ class a_star:
     while self.backward.parent != None:
       self.problem.path.append(copy(self.backward))
       self.backward = self.backward.parent
-    return self.problem.path, self.came_from, self.frontier.getList()
+    return self.problem.path, self.came_from, self.frontier.get_list()
 
   # on the matrix, every cost from a current node to next node is 1
   def step_cost(self, current, next):
     return 1
 
-# Return an array of states
+# Used on the three algorithms. Return an array of states
 def actions(state, matrix):
   available_nodes = []
-  #if matrix.getpixel((state[0] - 1, state[1] - 1)) != PIXEL['BLACK']:
-  #  available_nodes.append((state[0] - 1, state[1] - 1))
   if (state[0] - 1 > 0) and matrix.getpixel((state[0] - 1, state[1])) != PIXEL['BLACK']:
     available_nodes.append((state[0] - 1, state[1]))
-  #if matrix.getpixel((state[0] - 1, state[1] + 1)) != PIXEL['BLACK']:
-  #  available_nodes.append((state[0] - 1, state[1] + 1))
 
   if (state[1] - 1 > 0) and matrix.getpixel((state[0], state[1] - 1)) != PIXEL['BLACK']:
     available_nodes.append((state[0], state[1] - 1))
   if (state[1] + 1 < matrix.size[1]) and matrix.getpixel((state[0], state[1] + 1)) != PIXEL['BLACK']:
     available_nodes.append((state[0], state[1] + 1))
 
-  #if matrix.getpixel((state[0] + 1, state[1] - 1)) != PIXEL['BLACK']:
-  #  available_nodes.append((state[0] + 1, state[1] - 1))
   if (state[0] + 1 < matrix.size[0]) and matrix.getpixel((state[0] + 1, state[1])) != PIXEL['BLACK']:
     available_nodes.append((state[0] + 1, state[1]))
-  #if matrix.getpixel((state[0] + 1, state[1] + 1)) != PIXEL['BLACK']:
-  #  available_nodes.append((state[0] + 1, state[1] + 1))
   return available_nodes

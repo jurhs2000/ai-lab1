@@ -4,9 +4,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 from problem import Problem
 
-img = im.read_image("input/input4.bmp")
+image_url = ''
+option = 0
+while option != 1 and option != 2:
+  print('Please select the image to work with:')
+  print('1. Image 1')
+  print('2. Image 2')
+  option = int(input("Choose an image: "))
+  if option == 1:
+    image_url = 'input/input3.png'
+  elif option == 2:
+    image_url = 'input/input4.bmp'
+
+img = im.read_image(image_url)
 img, startpoints, endpoints = im.reduce_image(img)
-print(startpoints, endpoints)
 
 # Show image with matplotlib
 plt.imshow(img)
@@ -19,7 +30,7 @@ while option != 4:
   print("2. DFS")
   print("3. A*")
   print("4. Exit")
-  option = int(input("Choose an option: "))
+  option = int(input("Choose an algorithm: "))
   if option == 1:
     algorithm = BFS(problem)
     path, explored, frontier = algorithm.execute()
