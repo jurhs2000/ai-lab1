@@ -1,7 +1,6 @@
 from graphsearch import BFS, a_star, DFS
 import imageManipulator as im
 import matplotlib.pyplot as plt
-import numpy as np
 from problem import Problem
 
 image_url = ''
