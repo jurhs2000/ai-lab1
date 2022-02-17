@@ -35,7 +35,7 @@ while option != 4:
     path, explored, frontier = algorithm.execute()
     option = 4
   elif option == 2:
-    algorithm = DFS(problem)
+    algorithm = DFS(problem, image_url)
     path, explored, frontier = algorithm.execute()
     option = 4
   elif option == 3:

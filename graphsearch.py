@@ -117,7 +117,7 @@ class BFS:
 
 # Depth First Search
 class DFS:
-  def __init__(self, problem):
+  def __init__(self, problem, image_url):
     self.problem = problem
     self.problem.actions = self.actions
     self.problem.goal_test = self.goal_test
@@ -126,7 +126,7 @@ class DFS:
     self.explored = []
     # Commented declarations used to show a graph
     '''
-    self.img = im.read_image("input/input4.bmp")
+    self.img = im.read_image(image_url)
     self.img, self.startpoints, self.endpoints = im.reduce_image(self.img)
     '''
 
