@@ -1,11 +1,11 @@
 from PIL import Image
 
 # Matrix size to resize image
-RESIZE = (50, 50)
+RESIZE = (400, 400)
 # Threshold percentage of white pixels
 THRESHOLD_PERCENTAGE = 0.9
 # Threshold percentage of colors pixels
-COLOR_THRESHOLD_PERCENTAGE = 0.75
+COLOR_THRESHOLD_PERCENTAGE = 0.6
 
 # Pixels types
 PIXEL = {

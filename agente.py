@@ -5,15 +5,21 @@ from problem import Problem
 
 image_url = ''
 option = 0
-while option != 1 and option != 2:
+while option != 1 and option != 2 and option != 3 and option != 4:
   print('Please select the image to work with:')
   print('1. Image 1')
   print('2. Image 2')
+  print('3. Image 3')
+  print('4. Image 4')
   option = int(input("Choose an image: "))
   if option == 1:
     image_url = 'input/input3.png'
   elif option == 2:
     image_url = 'input/input4.bmp'
+  elif option == 3:
+    image_url = 'input/Prueba Lab1.bmp'
+  elif option == 4:
+    image_url = 'input/turing.png'
 
 img = im.read_image(image_url)
 img, startpoints, endpoints = im.reduce_image(img)

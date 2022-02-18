@@ -3,7 +3,10 @@ from math import sqrt, pow
 from imageManipulator import PIXEL
 from typing import List, Tuple, TypeVar
 import heapq
+import sys
 T = TypeVar('T')
+
+sys.setrecursionlimit(10000)
 
 # next imports are used only to show a graph
 '''
